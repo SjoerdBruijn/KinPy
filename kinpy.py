@@ -14,6 +14,10 @@ import matplotlib.widgets
 from mpl_toolkits.mplot3d import Axes3D
 from matplotlib.widgets import CheckButtons
 
+
+#import pdb #for debugging
+#pdb.set_trace()
+
 def fread(fid, nelements, dtype):
     """Equivalent to Matlab fread function"""
     if dtype is np.str:
@@ -24,11 +28,7 @@ def fread(fid, nelements, dtype):
     data_array.shape = (nelements, 1)
     return data_array
 
-#class
-#def __init__(dat,x,y,z,frequency)
-
 def readndf(naam):
-    import pdb
     fid = open(naam,"rb")
     fread(fid,1,'uint8')
     items = fread(fid,1,'uint8')
@@ -39,23 +39,10 @@ def readndf(naam):
     frequency = fread(fid,1,'float32')
     fread(fid,60,'uint8')
     fread(fid,183,'uint8')
-#    print('items')
-#    print(items[0][0])
-#    print('subitems')
-#    print(subitems[0][0])
-#    print('numframes')
-#    print(numframes[0][0])
-#    print('frequency')
-#    print(frequency[0][0])
     aantal = items[0][0]*subitems[0][0]*numframes[0][0]    
-#    print(aantal)
     data = np.array(fread(fid,int(aantal),'float32'))
     data[data< -1e21] = np.nan
     data = data.reshape(int(numframes[0][0]),int(items[0][0]*subitems[0][0]))
-#    data = data.T
-#    pdb.set_trace()
-#    print('length')
-#    print(items[0][0]*subitems[0][0])
     x = data[:,0::3]
     y = data[:,1::3]
     z = data[:,2::3]
@@ -75,6 +62,26 @@ def calc_combined_com(traj):
         mass_total  = mass_total+mass
     com_combined    = com_combined/mass_total
     return com_combined
+
+def xyz2dat(s1,s2,s3):
+# omzetten van datastructuur:
+#
+#   van 3 matrices X, Y en Z van format  [X1  X2  Xk
+#                                        ...........
+#                                        X1m X2m Xkm]
+#
+# naar   [X1  Y1  Z1 .... Xk  Yk  Zk             met: k = aantal markers
+#         .........................                   m = aantal samples
+#        X1m Y1m Z1m ....Xkm Ykm Zkm ]
+#
+
+    data = np.empty([s1.shape[0],s1.shape[1]*3])
+    data[:,0::3] = s1
+    data[:,1::3] = s2
+    data[:,2::3] = s3
+    return data
+
+
 
 def plot_3d(traj):
     class Player(FuncAnimation):
