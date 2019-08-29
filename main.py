@@ -11,8 +11,7 @@ import scipy.io
 import kinpy as kp
 import matplotlib.pyplot as plt
 
-
-x,y,z,fs = kp.readndf("testdata/TN000064.ndf")
+x,y,z,fs = kp.readndf("testdata/TN000077.ndf")
 fig = plt.figure()
 ax = fig.add_subplot(111)
 ax.plot(x[:,17:19],z[:,17:19])
