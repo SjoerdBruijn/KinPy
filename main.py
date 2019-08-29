@@ -9,6 +9,8 @@ Created on Wed Aug 21 21:43:42 2019
 
 import scipy.io
 import kinpy as kp
+import matplotlib.pyplot as plt
+
 
 x,y,z,fs = kp.readndf("testdata/TN000064.ndf")
 fig = plt.figure()
