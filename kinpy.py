@@ -90,7 +90,7 @@ def plot_3d(traj):
             FuncAnimation.__init__(self,self.fig, self.update, frames=self.play(), 
                                                init_func=init_func, fargs=fargs,
                                                save_count=save_count, **kwargs )    
-    
+            
         def play(self):
             while self.runs:
                 self.i = self.i+1
@@ -125,9 +125,14 @@ def plot_3d(traj):
                                                     self.min, self.max, valinit=self.i)
             self.slider.on_changed(self.set_pos)
     
+            col = (0,0,0,0)
+            rax = plt.axes([0.1, 0.2, 0.2, 0.6], facecolor=col )
+            self.check = CheckButtons(rax, ('joints', 'blue', 'green'), (1,0,1))
+            self.check.on_clicked(self.set_pos)
+            
         def set_pos(self,i):
             self.i = int(self.slider.val)
-            self.func(self.i)
+            self.func(self)
     
         def update(self,i):
             self.slider.set_val(i)
@@ -135,27 +140,25 @@ def plot_3d(traj):
     
     
     #https://stackoverflow.com/questions/41602588/matplotlib-3d-scatter-animations
-    def update(i):
+    def update(tmp):
+        i = tmp.i
+        statuses = tmp.check.get_status()
         n_seg = traj[0,0]['segment'][0,:]['mass'].size
+        
         #for i_seg in range(n_seg):
         comdata=np.zeros((n_seg,3))
         for i_seg in range(n_seg):
             comdata[i_seg,0]=traj[0,0]['segment'][0,i_seg]['com'][i,0]
             comdata[i_seg,1]=traj[0,0]['segment'][0,i_seg]['com'][i,1]
             comdata[i_seg,2]=traj[0,0]['segment'][0,i_seg]['com'][i,2]
-        complot.set_data(comdata[:,0],comdata[:,1])#
-        complot.set_3d_properties(comdata[:,2])
-        
+       
         blmdata= np.zeros((0,3)) 
         for i_seg in range(n_seg):
             tmp_blm=traj[0,0]['segment'][0,i_seg]['blm'][i,:]
             tst= tmp_blm.reshape(int(tmp_blm.size/3),3)   
             blmdata=np.append(blmdata,tst, axis = 0)
             blmdata=np.append(blmdata,np.ones((1,3))*np.nan,axis=0)
-        blmplot.set_data(blmdata[:,0],blmdata[:,1])#
-        blmplot.set_3d_properties(blmdata[:,2])
         
-        statuses = check.get_status()
         jointdata= np.zeros((0,3)) 
         if statuses[0]:
             for i_seg in range(n_seg):
@@ -163,7 +166,13 @@ def plot_3d(traj):
                 tst= tmp_joint.reshape(int(tmp_joint.size/3),3)   
                 jointdata=np.append(jointdata,tst, axis = 0)
                 jointdata=np.append(jointdata,np.ones((1,3))*np.nan,axis=0)
-                
+
+        complot.set_data(comdata[:,0],comdata[:,1])#
+        complot.set_3d_properties(comdata[:,2])
+        
+        blmplot.set_data(blmdata[:,0],blmdata[:,1])#
+        blmplot.set_3d_properties(blmdata[:,2])
+        
         jointplot.set_data(jointdata[:,0],jointdata[:,1])#
         jointplot.set_3d_properties(jointdata[:,2])
         
@@ -206,6 +215,9 @@ def plot_3d(traj):
     i=1
     
     n_seg = traj[0,0]['segment'][0,:]['mass'].size
+    max_t=int(traj[0,0]['segment'][0,1]['com'].size/3)
+
+    
     comdata=np.zeros((n_seg,3))
     for i_seg in range(n_seg):
         comdata[i_seg,0]=traj[0,0]['segment'][0,i_seg]['com'][i,0]
@@ -226,9 +238,7 @@ def plot_3d(traj):
         jointdata=np.append(jointdata,tst, axis = 0)
         jointdata=np.append(jointdata,np.ones((1,3))*np.nan,axis=0)
     
-    col = (0,0,0,0)
-    rax = plt.axes([0.1, 0.2, 0.2, 0.6], facecolor=col )
-    check = CheckButtons(rax, ('joints', 'blue', 'green'), (1,0,1))
+
      
     complot,    =ax.plot(comdata[:,0],comdata[:,1],comdata[:,2],linestyle="", marker="o")
     blmplot,    =ax.plot(blmdata[:,0],blmdata[:,1],blmdata[:,2])
@@ -236,6 +246,5 @@ def plot_3d(traj):
     
     set_axes_equal(ax)
     
-    max_t=int(traj[0,0]['segment'][0,i_seg]['com'].size/3)
     ani = Player(fig, update, maxi=max_t,interval=50)
 
