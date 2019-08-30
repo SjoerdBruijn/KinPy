@@ -25,10 +25,12 @@ ax.set(title= 'foot trajectory',
 
 dat = kp.xyz2dat(x,y,z)
 
-eye = np.eye(3,k=0)
-eye = eye.reshape([1,9])
-eye = np.r_[eye,eye,eye,eye,eye]
-C = kp.prod_col(dat[0:5:1,0:9:1],eye)
+## test case for kp.prod_col
+#eye = np.eye(3,k=0)
+#eye = eye.reshape([1,9])
+#eye = np.r_[eye,eye,eye,eye,eye]
+#C = kp.prod_col(eye,dat[0:5:1,0:9:1])
+#np.subtract(dat[0:5:1,0:9:1],C)
 
 mat = scipy.io.loadmat('testdata/TN000076.mat')
 traj =mat['traj']
