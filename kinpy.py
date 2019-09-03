@@ -90,7 +90,7 @@ def plot_3d(traj):
             self.i = 0
             self.min=mini
             self.max=maxi
-            self.runs = True
+            self.runs = False
             self.fig = fig
             self.func = func
             self.setup(pos)
@@ -105,7 +105,8 @@ def plot_3d(traj):
                     yield self.i
                 else:
                     self.stop()
-                    yield self.i    
+                    yield self.i  
+            yield self.i
     
         def start(self, event=None):
             self.runs=True
