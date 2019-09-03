@@ -74,14 +74,29 @@ def xyz2dat(s1,s2,s3):
 #         .........................                   m = aantal samples
 #        X1m Y1m Z1m ....Xkm Ykm Zkm ]
 #
-
     data = np.empty([s1.shape[0],s1.shape[1]*3])
     data[:,0::3] = s1
     data[:,1::3] = s2
     data[:,2::3] = s3
     return data
 
+def dat2xyz(data):
+    x = data[:,0::3]
+    y = data[:,1::3]
+    z = data[:,2::3]
+    return x,y,z
 
+def prod_col(A,B):
+    mult_ord = np.arange(9).reshape(3,3)
+    C = np.zeros(B.shape)
+    for i_col in range(B.shape[1]):
+        if B.shape[1]==3:
+            C[:,i_col] = np.sum(np.multiply(A[:,mult_ord[i_col,:]],B),axis=1)
+        elif B.shape[1]==9:
+            C[:,i_col] = np.sum(np.multiply(A[:,mult_ord[int(np.floor(i_col/3)),:]],B[:,mult_ord[:,int(i_col%3)]]),axis=1)
+    return C
+    
+    
 
 def plot_3d(traj):
     class Player(FuncAnimation):
