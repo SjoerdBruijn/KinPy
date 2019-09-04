@@ -41,8 +41,14 @@ kp.plot_3d(traj)
     
 ##
 settings=pd.read_excel('testdata/full data set/Settings_Basketball.xls')  
+#settings.data_path        = ['raw data/']; #location of the data
+#settings.file_prefix      = 'TN000'; 
+#settings.file_extension   = '.ndf';
+#settings.pointer_file     = 'RB-06114.RIG';
+#settings.pointer_kol      = 13::18;
+#settings.reference_trial_nr     = 89; 
+#settings.cluster_pointer_nr     = 78::88; 
+#settings.forceplate_pointers_nr = 12::16;
 # of course, in our setting, all is still based on 1-based indexing. 
     
-    #ani = Player(fig, update, maxi=100,interval=20)
     
-    #plt.show()
