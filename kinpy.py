@@ -13,6 +13,7 @@ import mpl_toolkits.axes_grid1
 import matplotlib.widgets
 from mpl_toolkits.mplot3d import Axes3D
 from matplotlib.widgets import CheckButtons
+import pandas as pd
 
 
 #import pdb #for debugging
@@ -48,6 +49,11 @@ def readndf(naam):
     z = data[:,2::3]
     fid.close()
     return x,y,z,frequency[0][0]
+
+def ImportPointerFile(pointerfilename): 
+    n_markers= pd.read_csv(pointerfilename,skiprows=3,nrows=1,delimiter=';',header=None)
+    pointer=pd.read_csv(pointerfilename,skiprows=6, nrows=n_markers[0][0], usecols=[1,2,3], delim_whitespace=True) 
+    return pointer 
 
 
 def calc_combined_com(traj):
