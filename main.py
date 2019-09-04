@@ -41,7 +41,7 @@ kp.plot_3d(traj)
     
 ##
 settings=dict() 
-settings['segments']=pd.read_excel('testdata/full data set/Settings_Basketball.xls') 
+settings['segments']         = pd.read_excel('testdata/full data set/Settings_Basketball.xls') 
 settings['data_path']        = ['raw data/']; #location of the data
 settings['file_prefix']      = 'TN000'; 
 settings['file_extension']   = '.ndf';
@@ -50,9 +50,10 @@ settings['pointer_kol']      = range(13,18);
 settings['reference_trial_nr']     = 89; 
 settings['cluster_pointer_nr']     = range(78,88); 
 settings['forceplate_pointers_nr'] = range(12,16);
+settings['pointerfilename']         ='testdata/full data set/RB-06114.RIG'
 # of course, in our setting, all is still based on 1-based indexing. 
-pointerfilename='testdata/full data set/RB-06114.RIG'
 
-pointer= kp.ImportPointerFile(pointerfilename) 
+
+pointer= kp.ImportPointerFile(settings['pointerfilename']) 
 
 
