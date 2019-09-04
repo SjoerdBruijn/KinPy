@@ -11,8 +11,7 @@ import scipy.io
 import kinpy as kp
 import matplotlib.pyplot as plt
 import numpy as np
-#import numpy.maltib
-
+import pandas as pd
 
 x,y,z,fs = kp.readndf("testdata/TN000077.ndf")
 fig = plt.figure()
@@ -40,7 +39,9 @@ com = kp.calc_combined_com(traj)
 kp.plot_3d(traj)
     
     
-    
+##
+settings=pd.read_excel('testdata/full data set/Settings_Basketball.xls')  
+# of course, in our setting, all is still based on 1-based indexing. 
     
     #ani = Player(fig, update, maxi=100,interval=20)
     

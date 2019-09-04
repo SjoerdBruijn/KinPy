@@ -105,26 +105,25 @@ def plot_3d(traj):
             self.i = 0
             self.min=mini
             self.max=maxi
-            self.runs = False
+            self.runs = True
             self.fig = fig
             self.func = func
             self.setup(pos)
             FuncAnimation.__init__(self,self.fig, self.update, frames=self.play(), 
                                                init_func=init_func, fargs=fargs,
-                                               save_count=save_count, **kwargs )    
-            
+                                               save_count=save_count, **kwargs )  
+          
         def play(self):
             while self.runs:
                 self.i = self.i+1
-                if self.i > self.min and self.i < self.max:
+                if self.i > self.min and self.i < self.max:                  
                     yield self.i
                 else:
                     self.stop()
-                    yield self.i  
-            yield self.i
+                    yield self.i 
     
         def start(self, event=None):
-            self.runs=True
+            self.runs = True
             self.event_source.start()
     
         def stop(self, event=None):
@@ -152,7 +151,7 @@ def plot_3d(traj):
             rax = plt.axes([0.1, 0.2, 0.2, 0.6], facecolor=col )
             self.check = CheckButtons(rax, ('joints', 'blue', 'green'), (1,0,1))
             self.check.on_clicked(self.set_pos)
-            
+
         def set_pos(self,i):
             self.i = int(self.slider.val)
             self.func(self)
