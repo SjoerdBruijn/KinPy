@@ -36,7 +36,7 @@ traj =mat['traj']
 
 com = kp.calc_combined_com(traj)
 
-kp.plot_3d(traj)
+#kp.plot_3d(traj)
     
     
 ##
@@ -53,6 +53,19 @@ settings['forceplate_pointers_nr'] = range(12,16);
 settings['pointerfilename']         ='testdata/full data set/RB-06114.RIG'
 # of course, in our setting, all is still based on 1-based indexing. 
 
+BLM=dict()
+BLM['segment']=dict()
+n_seg=len(settings['segments'])
+for i_seg in range(n_seg): 
+    BLM['segment'][0,i_seg]=dict()
+    BLM['segment'][0,i_seg]['segment_name']=settings['segments']['segment_name'][i_seg]
+    BLM['segment'][0,i_seg]['pointer_nr']=settings['segments']['pointer nr'][i_seg]# this needs to be converted to integers still
+    BLM['segment'][0,i_seg]['opto_kol']=settings['segments']['marker columns'][i_seg]# this needs to be converted to integers still
+    BLM['segment'][0,i_seg]['side']=settings['segments']['side'][i_seg]
+    BLM['segment'][0,i_seg]['circumference']=settings['segments']['circumference'][i_seg]
+    BLM['segment'][0,i_seg]['gender']=settings['segments']['gender'][i_seg]
+    BLM['segment'][0,i_seg]['blmforaxis']=settings['segments']['BLM from segments'][i_seg]    
+    BLM['segment'][0,i_seg]['axis_function']=settings['segments']['ACS function'][i_seg]    
 
 pointer= kp.ImportPointerFile(settings['pointerfilename']) 
 
