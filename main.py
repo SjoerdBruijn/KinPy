@@ -24,6 +24,23 @@ ax.set(title= 'foot trajectory',
 
 dat = kp.xyz2dat(x,y,z)
 
+eye = np.eye(3,k=0)
+eye = eye.reshape([1,9])
+eye = np.r_[eye,eye,eye,eye,eye]
+D = np.ones([5,9])*np.arange(9).T+1
+
+
+A = np.array([(1,2,3,4,5,6,7,8,9),([1,2,3,4,5,6,7,8,9])])
+B = np.array([(9,8,7,6,5,4,3,2,1),(9,8,7,6,5,4,3,2,1)])
+kp.prod_col(A,B)
+
+eye2 = np.eye(3,k=0)
+eye2 = eye2.reshape([1,9])
+eye2 = np.r_[eye2,eye2,eye2,eye2,eye2]
+eye2[0,1] = 2 
+R,D2 = kp.chgframe(eye2,eye,D)
+#R = kp.chgframe(eye,eye,dat[0:5:1,0:9:1])
+
 ## test case for kp.prod_col
 #eye = np.eye(3,k=0)
 #eye = eye.reshape([1,9])
