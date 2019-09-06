@@ -11,8 +11,7 @@ import scipy.io
 import kinpy as kp
 import matplotlib.pyplot as plt
 import numpy as np
-import numpy.maltib
-
+import pandas as pd
 
 x,y,z,fs = kp.readndf("testdata/TN000077.ndf")
 fig = plt.figure()
@@ -54,11 +53,37 @@ traj =mat['traj']
 
 com = kp.calc_combined_com(traj)
 
-kp.plot_3d(traj)
+#kp.plot_3d(traj)
     
     
-    
-    
-    #ani = Player(fig, update, maxi=100,interval=20)
-    
-    #plt.show()
+##
+settings=dict() 
+settings['segments']         = pd.read_excel('testdata/full data set/Settings_Basketball.xls') 
+settings['data_path']        = ['raw data/']; #location of the data
+settings['file_prefix']      = 'TN000'; 
+settings['file_extension']   = '.ndf';
+settings['pointer_file']     = 'RB-06114.RIG';
+settings['pointer_kol']      = range(13,18);
+settings['reference_trial_nr']     = 89; 
+settings['cluster_pointer_nr']     = range(78,88); 
+settings['forceplate_pointers_nr'] = range(12,16);
+settings['pointerfilename']         ='testdata/full data set/RB-06114.RIG'
+# of course, in our setting, all is still based on 1-based indexing. 
+
+BLM=dict()
+BLM['segment']=dict()
+n_seg=len(settings['segments'])
+for i_seg in range(n_seg): 
+    BLM['segment'][0,i_seg]=dict()
+    BLM['segment'][0,i_seg]['segment_name']=settings['segments']['segment_name'][i_seg]
+    BLM['segment'][0,i_seg]['pointer_nr']=settings['segments']['pointer nr'][i_seg]# this needs to be converted to integers still
+    BLM['segment'][0,i_seg]['opto_kol']=settings['segments']['marker columns'][i_seg]# this needs to be converted to integers still
+    BLM['segment'][0,i_seg]['side']=settings['segments']['side'][i_seg]
+    BLM['segment'][0,i_seg]['circumference']=settings['segments']['circumference'][i_seg]
+    BLM['segment'][0,i_seg]['gender']=settings['segments']['gender'][i_seg]
+    BLM['segment'][0,i_seg]['blmforaxis']=settings['segments']['BLM from segments'][i_seg]    
+    BLM['segment'][0,i_seg]['axis_function']=settings['segments']['ACS function'][i_seg]    
+
+pointer= kp.ImportPointerFile(settings['pointerfilename']) 
+
+

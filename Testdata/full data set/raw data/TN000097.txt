@@ -1,0 +1,110 @@
+[Section Optotrak]
+Enable=TRUE
+Markers Port 1=12
+Markers Port 2=6
+Markers Port 3=0
+Markers Port 4=0
+Buffer Data Type=32
+Collection Time=300.000000
+Frame Frequency=100.000000
+Marker frequency=2800.000000
+Voltage=7.000000
+Duty Cycle=0.500000
+RT 3D Feedback=TRUE
+RT Convert On Host=TRUE
+Interpolation=TRUE
+External Clock=FALSE
+External Trigger=FALSE
+Use Simulation Lib=FALSE
+Use Standard Cam=FALSE
+Use Old API=FALSE
+Camera File="/D/01-wouter & Alwin/test2/test2.cam"
+Old Camera File="/D/01-wouter & Alwin/test2/test2.cam"
+Feedback=TRUE
+RT Block For 3D Frame=FALSE
+RT Marker 1=1
+RT Marker 2=2
+RT Marker 3=3
+RT Display Posture=TRUE
+RT Display Marker Numbers=TRUE
+RT Display Circles=TRUE
+RT Posture Axes=0
+RT Reference Posture=""
+
+[Section AI]
+FP1 Channels="Dev1/ai8:15"
+FP2 Channels="Sc1Mod1/ai8:15"
+Additional Channels="Sc1Mod3/ai0:3"
+Enable FP1=TRUE
+Enable FP2=FALSE
+Enable Additional Channels=FALSE
+Term Cfg=10106
+Min=-10.000000
+Max=10.000000
+Collection Time=5.000000
+Scan Rate=800.000000
+Force Plate Type="Kistler"
+Null Offset Method="UseMeanNull"
+RT Feedback=FALSE
+RT Feedback Rate=30
+RT Channel 1=0
+RT Channel 2=0
+RT Channel 3=0
+FP Feedback=TRUE
+AI Feedback=TRUE
+
+[Section AO]
+Channel 1=""
+Low Value 1=0.000000
+High Value 1=5.000000
+Enable 1=FALSE
+Channel 2=""
+Low Value 2=0.000000
+High Value 2=5.000000
+Enable 2=FALSE
+Generic AO Channels="Dev1/ao0"
+Enable Generic AO Channels?=FALSE
+
+[Section DI]
+Channel 1="Dev1/port0/line0"
+Enable 1=FALSE
+Channel 2=""
+Enable 2=FALSE
+Channel 3=""
+Enable 3=FALSE
+Channel 4="Dev1/port0/line3"
+Enable 4=FALSE
+Nr Of Channels=0
+Use DI Ports=FALSE
+DI Ports="Dev1/port0"
+
+[Section DO]
+Channel 1="Dev1/port0/line0"
+On Signal 1=0
+Enable 1=FALSE
+Channel 2=""
+On Signal 2=0
+Enable 2=FALSE
+Channel 3=""
+On Signal 3=0
+Enable 3=FALSE
+Channel 4="Dev1/port0/line3"
+On Signal 4=0
+Enable 4=FALSE
+Nr Of Channels=0
+Use DO Ports=FALSE
+DO Ports="Dev1/port0"
+
+[Section EMG]
+Write Sync Pulse=TRUE
+
+[Section Timer]
+Use Counter on DAQ Card=FALSE
+Counter="Dev1/ctr1"
+Show Timer Feedback=FALSE
+
+[Section Application]
+Name="TC3"Gauge null: 0.0000000	0.0000000	0.0000000	0.0000000	0.0000000	0.0000000	0.0000000	0.0000000
+Gauge data: 0.0000000	0.0000000	0.0000000	0.0000000	0.0000000	0.0000000	0.0000000	0.0000000
+Gauge mass: 0.000	0.000	0.000
+Gauge factor: 0.000	0.000	0.000

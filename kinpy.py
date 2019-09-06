@@ -13,7 +13,11 @@ import mpl_toolkits.axes_grid1
 import matplotlib.widgets
 from mpl_toolkits.mplot3d import Axes3D
 from matplotlib.widgets import CheckButtons
+#<<<<<<< HEAD
 from scipy import linalg
+#=======
+import pandas as pd
+#>>>>>>> 9d8ff53a32d4f04a7f266ac9619ce0ad3a402027
 
 
 #import pdb #for debugging
@@ -49,6 +53,11 @@ def readndf(naam):
     z = data[:,2::3]
     fid.close()
     return x,y,z,frequency[0][0]
+
+def ImportPointerFile(pointerfilename): 
+    n_markers= pd.read_csv(pointerfilename,skiprows=3,nrows=1,delimiter=';',header=None)
+    pointer=pd.read_csv(pointerfilename,skiprows=6, nrows=n_markers[0][0], usecols=[1,2,3], delim_whitespace=True) 
+    return pointer 
 
 
 def calc_combined_com(traj):
@@ -88,10 +97,8 @@ def dat2xyz(data):
     return x,y,z
 
 def prod_col(A,B):   
-#    import pdb
     mult_ord = (np.arange(9).reshape(3,3)).T
     C = np.zeros(B.shape)
-#    pdb.set_trace()
     for i_col in range(B.shape[1]):
             Ai = mult_ord[int(i_col%3),:]
             Bi = np.array([0,1,2])+ int(3*np.floor(i_col/3))
@@ -99,13 +106,10 @@ def prod_col(A,B):
     return C
     
 def chgframe(ref1,ref2,data):
-#    [m,n]    = ref1.shape
-#    [m1,n1]  = data.shape
     # Create empty matrices
     R = ref1*np.nan
     c1_tot= np.ones(data.shape)*np.nan
     c2_tot= np.ones(data.shape)*np.nan
-#    c2= R[:,0:3:1].T
     dat2est = data*np.nan
     # Create temporary ref1 and ref2
     ref1_temp = ref1[1,:].reshape(3,3);
@@ -134,21 +138,14 @@ def chgframe(ref1,ref2,data):
         # Get sign of Det
         t = np.sign(linalg.det(G))
         t=0
-        # calculate cofactor matrix (adjoint.T)
-        # in Matlab: adjoint of a 3x3 matrix
+        # adjoint of a 3x3 matrix
         Gadj = adjoint(G)
-#        Gadj = np.r_[np.vdot(G[:,1],G[:,2]),np.vdot(G[:,2],G[:,0]),np.vdot(G[:,0],G[:,1])]
-#        R_temp = ()
         R_temp    = np.matmul((Gadj.T+(mu[2]+mu[1]+t*mu[0])*G),linalg.inv(np.matmul(G.T,G)+(mu[2]*mu[1]+t*mu[0]*(mu[2]+mu[1])) * np.eye(3)))
         R_temp = np.real(R_temp)
-        R[i_t,:] = R_temp.T.reshape(1,9)
-#        Dit moet beter kunnen met prod_col
-#        Denk dat we c2 en c1 moeten vectorizeren/opslaan en dan prod_collen met nieuwe func
-      
+        R[i_t,:] = R_temp.T.reshape(1,9)    
         c1_tot[i_t,:] = np.tile(c1,[1,int(data.shape[1]/3)])
         c2_tot[i_t,:] = np.tile(c2,[1,int(data.shape[1]/3)])
     dat2est = c2_tot + prod_col(R,data-c1_tot)
-#    dat2est[i_t,:] = np.r_[(c2,c2,c2)].T+prod_col(R[i_t,:].T,(data[i_t,:]-np.r_[(c2,c2,c2)].T).T)
     return R, dat2est
     
 def adjoint(mat):# cofactor matrix of a 3x3 matrix
@@ -173,19 +170,19 @@ def plot_3d(traj):
             self.setup(pos)
             FuncAnimation.__init__(self,self.fig, self.update, frames=self.play(), 
                                                init_func=init_func, fargs=fargs,
-                                               save_count=save_count, **kwargs )    
-    
+                                               save_count=save_count, **kwargs )  
+          
         def play(self):
             while self.runs:
                 self.i = self.i+1
-                if self.i > self.min and self.i < self.max:
+                if self.i > self.min and self.i < self.max:                  
                     yield self.i
                 else:
                     self.stop()
-                    yield self.i    
+                    yield self.i 
     
         def start(self, event=None):
-            self.runs=True
+            self.runs = True
             self.event_source.start()
     
         def stop(self, event=None):
@@ -209,9 +206,14 @@ def plot_3d(traj):
                                                     self.min, self.max, valinit=self.i)
             self.slider.on_changed(self.set_pos)
     
+            col = (0,0,0,0)
+            rax = plt.axes([0.1, 0.2, 0.2, 0.6], facecolor=col )
+            self.check = CheckButtons(rax, ('joints', 'blue', 'green'), (1,0,1))
+            self.check.on_clicked(self.set_pos)
+
         def set_pos(self,i):
             self.i = int(self.slider.val)
-            self.func(self.i)
+            self.func(self)
     
         def update(self,i):
             self.slider.set_val(i)
@@ -219,27 +221,25 @@ def plot_3d(traj):
     
     
     #https://stackoverflow.com/questions/41602588/matplotlib-3d-scatter-animations
-    def update(i):
+    def update(tmp):
+        i = tmp.i
+        statuses = tmp.check.get_status()
         n_seg = traj[0,0]['segment'][0,:]['mass'].size
+        
         #for i_seg in range(n_seg):
         comdata=np.zeros((n_seg,3))
         for i_seg in range(n_seg):
             comdata[i_seg,0]=traj[0,0]['segment'][0,i_seg]['com'][i,0]
             comdata[i_seg,1]=traj[0,0]['segment'][0,i_seg]['com'][i,1]
             comdata[i_seg,2]=traj[0,0]['segment'][0,i_seg]['com'][i,2]
-        complot.set_data(comdata[:,0],comdata[:,1])#
-        complot.set_3d_properties(comdata[:,2])
-        
+       
         blmdata= np.zeros((0,3)) 
         for i_seg in range(n_seg):
             tmp_blm=traj[0,0]['segment'][0,i_seg]['blm'][i,:]
             tst= tmp_blm.reshape(int(tmp_blm.size/3),3)   
             blmdata=np.append(blmdata,tst, axis = 0)
             blmdata=np.append(blmdata,np.ones((1,3))*np.nan,axis=0)
-        blmplot.set_data(blmdata[:,0],blmdata[:,1])#
-        blmplot.set_3d_properties(blmdata[:,2])
         
-        statuses = check.get_status()
         jointdata= np.zeros((0,3)) 
         if statuses[0]:
             for i_seg in range(n_seg):
@@ -247,7 +247,13 @@ def plot_3d(traj):
                 tst= tmp_joint.reshape(int(tmp_joint.size/3),3)   
                 jointdata=np.append(jointdata,tst, axis = 0)
                 jointdata=np.append(jointdata,np.ones((1,3))*np.nan,axis=0)
-                
+
+        complot.set_data(comdata[:,0],comdata[:,1])#
+        complot.set_3d_properties(comdata[:,2])
+        
+        blmplot.set_data(blmdata[:,0],blmdata[:,1])#
+        blmplot.set_3d_properties(blmdata[:,2])
+        
         jointplot.set_data(jointdata[:,0],jointdata[:,1])#
         jointplot.set_3d_properties(jointdata[:,2])
         
@@ -290,6 +296,9 @@ def plot_3d(traj):
     i=1
     
     n_seg = traj[0,0]['segment'][0,:]['mass'].size
+    max_t=int(traj[0,0]['segment'][0,1]['com'].size/3)
+
+    
     comdata=np.zeros((n_seg,3))
     for i_seg in range(n_seg):
         comdata[i_seg,0]=traj[0,0]['segment'][0,i_seg]['com'][i,0]
@@ -310,9 +319,7 @@ def plot_3d(traj):
         jointdata=np.append(jointdata,tst, axis = 0)
         jointdata=np.append(jointdata,np.ones((1,3))*np.nan,axis=0)
     
-    col = (0,0,0,0)
-    rax = plt.axes([0.1, 0.2, 0.2, 0.6], facecolor=col )
-    check = CheckButtons(rax, ('joints', 'blue', 'green'), (1,0,1))
+
      
     complot,    =ax.plot(comdata[:,0],comdata[:,1],comdata[:,2],linestyle="", marker="o")
     blmplot,    =ax.plot(blmdata[:,0],blmdata[:,1],blmdata[:,2])
@@ -320,6 +327,5 @@ def plot_3d(traj):
     
     set_axes_equal(ax)
     
-    max_t=int(traj[0,0]['segment'][0,i_seg]['com'].size/3)
     ani = Player(fig, update, maxi=max_t,interval=50)
 
