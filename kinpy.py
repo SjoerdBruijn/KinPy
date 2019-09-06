@@ -13,6 +13,7 @@ import mpl_toolkits.axes_grid1
 import matplotlib.widgets
 from mpl_toolkits.mplot3d import Axes3D
 from matplotlib.widgets import CheckButtons
+from scipy import linalg
 
 
 #import pdb #for debugging
@@ -86,17 +87,78 @@ def dat2xyz(data):
     z = data[:,2::3]
     return x,y,z
 
-def prod_col(A,B):
-    mult_ord = np.arange(9).reshape(3,3)
+def prod_col(A,B):   
+#    import pdb
+    mult_ord = (np.arange(9).reshape(3,3)).T
     C = np.zeros(B.shape)
+#    pdb.set_trace()
     for i_col in range(B.shape[1]):
-        if B.shape[1]==3:
-            C[:,i_col] = np.sum(np.multiply(A[:,mult_ord[i_col,:]],B),axis=1)
-        elif B.shape[1]==9:
-            C[:,i_col] = np.sum(np.multiply(A[:,mult_ord[int(np.floor(i_col/3)),:]],B[:,mult_ord[:,int(i_col%3)]]),axis=1)
+            Ai = mult_ord[int(i_col%3),:]
+            Bi = np.array([0,1,2])+ int(3*np.floor(i_col/3))
+            C[:,i_col] = np.sum(np.multiply(A[:,Ai],B[:,Bi]),axis=1)
     return C
     
+def chgframe(ref1,ref2,data):
+#    [m,n]    = ref1.shape
+#    [m1,n1]  = data.shape
+    # Create empty matrices
+    R = ref1*np.nan
+    c1_tot= np.ones(data.shape)*np.nan
+    c2_tot= np.ones(data.shape)*np.nan
+#    c2= R[:,0:3:1].T
+    dat2est = data*np.nan
+    # Create temporary ref1 and ref2
+    ref1_temp = ref1[1,:].reshape(3,3);
+    ref2_temp = ref1_temp*np.nan
+    for i_t in range(ref2.shape[0]):
+        # If ref1 has >1 sample, iterate along the matrix
+        if ref1.shape[0]>1:
+            ref1_temp = ref1[i_t,:].reshape(3,3)
+        # reshape to 3x3 matrix
+        ref2_temp = ref2[i_t,:].reshape(3,int(ref2.shape[1]/3))
+        # find nans in data        
+        innan = sum(np.isnan(np.add(ref1_temp,ref2_temp)))<1 #i not NaN
+        # check whether there are 3 markers visible
+        if sum(innan)>3:
+            ref1_temp = ref1_temp[:,innan]
+            ref2_temp = ref2_temp[:,innan]
+        # length of new vector
+        nref = ref1_temp.shape[1]
+        # mean position of marker pos        
+        c1 = np.mean(ref1_temp,axis=0)
+        c2 = np.mean(ref2_temp,axis=0)
+        # Perform least squares function to data (misshien hier ref2 nog transpose)
+        G = np.matmul(ref2_temp-(c2*np.ones([3,nref])).T,ref1_temp-(c1*np.ones([1,3])))/nref
+        # Get eigenvalues of the         
+        mu = np.sort(linalg.eigvals(np.matmul(G.T,G)))**(.5)
+        # Get sign of Det
+        t = np.sign(linalg.det(G))
+        t=0
+        # calculate cofactor matrix (adjoint.T)
+        # in Matlab: adjoint of a 3x3 matrix
+        Gadj = adjoint(G)
+#        Gadj = np.r_[np.vdot(G[:,1],G[:,2]),np.vdot(G[:,2],G[:,0]),np.vdot(G[:,0],G[:,1])]
+#        R_temp = ()
+        R_temp    = np.matmul((Gadj.T+(mu[2]+mu[1]+t*mu[0])*G),linalg.inv(np.matmul(G.T,G)+(mu[2]*mu[1]+t*mu[0]*(mu[2]+mu[1])) * np.eye(3)))
+        R_temp = np.real(R_temp)
+        R[i_t,:] = R_temp.T.reshape(1,9)
+#        Dit moet beter kunnen met prod_col
+#        Denk dat we c2 en c1 moeten vectorizeren/opslaan en dan prod_collen met nieuwe func
+      
+        c1_tot[i_t,:] = np.tile(c1,[1,int(data.shape[1]/3)])
+        c2_tot[i_t,:] = np.tile(c2,[1,int(data.shape[1]/3)])
+    dat2est = c2_tot + prod_col(R,data-c1_tot)
+#    dat2est[i_t,:] = np.r_[(c2,c2,c2)].T+prod_col(R[i_t,:].T,(data[i_t,:]-np.r_[(c2,c2,c2)].T).T)
+    return R, dat2est
     
+def adjoint(mat):# cofactor matrix of a 3x3 matrix
+    adj = np.array((np.cross(mat[:,1],mat[:,2].T),np.cross(mat[:,2],mat[:,0]),np.cross(mat[:,0],mat[:,1])))
+#    if abs(linalg.det(mat))>0.001:
+#        cof = linalg.inv(mat).T*linalg.det(mat)
+#    else:
+#        cof = linalg.pinv(mat).T*linalg.det(mat)
+    return adj
+
 
 def plot_3d(traj):
     class Player(FuncAnimation):
