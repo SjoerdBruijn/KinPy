@@ -104,7 +104,11 @@ def prod_col(A,B):
             Bi = np.array([0,1,2])+ int(3*np.floor(i_col/3))
             C[:,i_col] = np.sum(np.multiply(A[:,Ai],B[:,Bi]),axis=1)
     return C
-    
+
+def transpose_col(mat):
+    Tmat = np.c_[mat[:,0::3],mat[:,1::3],mat[:,2::3]]
+    return Tmat
+
 def chgframe(ref1,ref2,data):
     # Create empty matrices
     R = ref1*np.nan
