@@ -12,6 +12,7 @@ import kinpy as kp
 import matplotlib.pyplot as plt
 import numpy as np
 import pandas as pd
+import re
 
 x,y,z,fs = kp.readndf("testdata/TN000077.ndf")
 fig = plt.figure()
@@ -59,11 +60,11 @@ com = kp.calc_combined_com(traj)
 
 #kp.plot_3d(traj)
     
-    
+
 ##
 settings=dict() 
 settings['segments']         = pd.read_excel('testdata/full data set/Settings_Basketball.xls') 
-settings['data_path']        = ['raw data/']; #location of the data
+settings['data_path']        = 'Testdata/full data set/raw data/'; #location of the data
 settings['file_prefix']      = 'TN000'; 
 settings['file_extension']   = '.ndf';
 settings['pointer_file']     = 'RB-06114.RIG';
@@ -72,22 +73,57 @@ settings['reference_trial_nr']     = 89;
 settings['cluster_pointer_nr']     = range(78,88); 
 settings['forceplate_pointers_nr'] = range(12,16);
 settings['pointerfilename']         ='testdata/full data set/RB-06114.RIG'
+settings['oldversion']=1
+
+
 # of course, in our setting, all is still based on 1-based indexing. 
+
+# first load the reference file
+
+#def pointer2blm(settings) # this will of course be a functtions soon
+pointer= kp.ImportPointerFile(settings['pointerfilename']) 
+refname=settings['data_path']+settings['file_prefix']+str(settings['reference_trial_nr']).zfill(3)+settings['file_extension']
+x_ref,y_ref,z_ref,fs = kp.readndf(refname) #filename should be gottten from settings
 
 BLM=dict()
 BLM['segment']=dict()
+# next, start with loop  over segments
 n_seg=len(settings['segments'])
 for i_seg in range(n_seg): 
     BLM['segment'][0,i_seg]=dict()
     BLM['segment'][0,i_seg]['segment_name']=settings['segments']['segment_name'][i_seg]
-    BLM['segment'][0,i_seg]['pointer_nr']=settings['segments']['pointer nr'][i_seg]# this needs to be converted to integers still
-    BLM['segment'][0,i_seg]['opto_kol']=settings['segments']['marker columns'][i_seg]# this needs to be converted to integers still
+    if settings['oldversion']==1:
+        tmp=re.findall(r'\d+',settings['segments']['pointer nr'][i_seg])
+        BLM['segment'][0,i_seg]['pointer_nr']=range(int(tmp[0])-1,int(tmp[1])-1)  
+        tmp=re.findall(r'\d+',settings['segments']['marker columns'][i_seg])
+        BLM['segment'][0,i_seg]['opto_kol']=range(int(tmp[0])-1,int(tmp[1])-1)   
+        tmp=re.findall(r'\d+',settings['segments']['BLM from segments'][i_seg])
+        tmp=list(map(int, tmp))
+        tmp[:] = [x - 1 for x in tmp]
+        BLM['segment'][0,i_seg]['blmforaxis']=tmp
+    else:
+        tmp=re.findall(r'\d+',settings['segments']['pointer nr'][i_seg])
+        BLM['segment'][0,i_seg]['pointer_nr']=range(int(tmp[0]),int(tmp[1]))  
+        tmp=re.findall(r'\d+',settings['segments']['marker columns'][i_seg])
+        BLM['segment'][0,i_seg]['opto_kol']=range(int(tmp[0]),int(tmp[1]))   
+        tmp=re.findall(r'\d+',settings['segments']['BLM from segments'][i_seg])
+        tmp=list(map(int, tmp))
+        BLM['segment'][0,i_seg]['blmforaxis']=tmp
+        
     BLM['segment'][0,i_seg]['side']=settings['segments']['side'][i_seg]
     BLM['segment'][0,i_seg]['circumference']=settings['segments']['circumference'][i_seg]
     BLM['segment'][0,i_seg]['gender']=settings['segments']['gender'][i_seg]
-    BLM['segment'][0,i_seg]['blmforaxis']=settings['segments']['BLM from segments'][i_seg]    
     BLM['segment'][0,i_seg]['axis_function']=settings['segments']['ACS function'][i_seg]    
 
-pointer= kp.ImportPointerFile(settings['pointerfilename']) 
-
-
+    #BLM['segment'][0,i_seg]['bracemarkers']= get these from x,y,z
+    i_blm=0
+    for i_list in BLM['segment'][0,i_seg]['pointer_nr']:
+       filen_no=settings['cluster_pointer_nr'][i_list]
+       filename=settings['data_path']+settings['file_prefix']+str(filen_no).zfill(3)+settings['file_extension']
+       x,y,z,fs = kp.readndf(filename)
+       # do the pointer rotations etc
+       
+       
+       # these should be stored in location i_blm*3:(i_blm+1*3)-1
+       i_blm+=i_blm
+    
