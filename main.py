@@ -22,24 +22,28 @@ ax.set(title= 'foot trajectory',
        ylabel = 'z pos [mm]',
        xlabel = 'x pos [mm]')
 
-dat = kp.xyz2dat(x,y,z)
+#dat = kp.xyz2dat(x,y,z)
 
-eye = np.eye(3,k=0)
-eye = eye.reshape([1,9])
-eye = np.r_[eye,eye,eye,eye,eye]
-D = np.ones([5,9])*np.arange(9).T+1
+#eye = np.eye(3,k=0)
+#eye = eye.reshape([1,9])
+#eye = np.r_[eye,eye,eye,eye,eye]
+#D = np.ones([5,9])*np.arange(9).T+1
 
+## Test case calc_axis_col
+#A = np.array([(11,2,23,4,52,16,27,81,91),([11,21,13,14,15,16,71,81,9]),(29,28,37,63,52,64,43,42,31),(9,84,7,64,5,54,36,2,1)])
+#B = kp.calc_axis_col(A)
 
-A = np.array([(1,2,3,4,5,6,7,8,9),([1,2,3,4,5,6,7,8,9])])
-B = np.array([(9,8,7,6,5,4,3,2,1),(9,8,7,6,5,4,3,2,1)])
-kp.prod_col(A,B)
+## Test case prod_col
+#A = np.array([(1,2,3,4,5,6,7,8,9),([1,2,3,4,5,6,7,8,9])])
+#B = np.array([(9,8,7,6,5,4,3,2,1),(9,8,7,6,5,4,3,2,1)])
+#kp.prod_col(A,B)
 
-eye2 = np.eye(3,k=0)
-eye2 = eye2.reshape([1,9])
-eye2 = np.r_[eye2,eye2,eye2,eye2,eye2]
-eye2[0,1] = 2 
-R,D2 = kp.chgframe(eye2,eye,D)
-#R = kp.chgframe(eye,eye,dat[0:5:1,0:9:1])
+## test case chgframe
+#eye2 = np.eye(3,k=0)
+#eye2 = eye2.reshape([1,9])
+#eye2 = np.r_[eye2,eye2,eye2,eye2,eye2]
+#eye2[0,1] = 2 
+#R,D2 = kp.chgframe(eye2,eye,D)
 
 ## test case for kp.prod_col
 #eye = np.eye(3,k=0)

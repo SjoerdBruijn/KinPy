@@ -160,6 +160,20 @@ def adjoint(mat):# cofactor matrix of a 3x3 matrix
 #        cof = linalg.pinv(mat).T*linalg.det(mat)
     return adj
 
+def calc_axis_col(dat):
+    v0 = dat[:,3:6]-dat[:,0:3]
+    v1_tmp = dat[:,3:6]-dat[:,6:9]
+    v2 = np.cross(v0,v1_tmp)
+    v1 = np.cross(v2,v0)
+    v0_norm = v0/normcol(v0)
+    v1_norm = v1/normcol(v1)
+    v2_norm = v2/normcol(v2)
+    R = np.c_[v0_norm,v1_norm,v2_norm]
+    return R
+
+def normcol(dat):
+    dat = np.sum(dat**2,axis=0)**.5
+    return dat
 
 def plot_3d(traj):
     class Player(FuncAnimation):
