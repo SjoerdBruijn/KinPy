@@ -78,12 +78,14 @@ settings['oldversion']=1
 
 # of course, in our setting, all is still based on 1-based indexing. 
 
-# first load the reference file
 
 #def pointer2blm(settings) # this will of course be a functtions soon
 pointer= kp.ImportPointerFile(settings['pointerfilename']) 
+pointer=pointer.values
 refname=settings['data_path']+settings['file_prefix']+str(settings['reference_trial_nr']).zfill(3)+settings['file_extension']
 x_ref,y_ref,z_ref,fs = kp.readndf(refname) #filename should be gottten from settings
+
+
 
 BLM=dict()
 BLM['segment']=dict()
@@ -96,7 +98,7 @@ for i_seg in range(n_seg):
         tmp=re.findall(r'\d+',settings['segments']['pointer nr'][i_seg])
         BLM['segment'][0,i_seg]['pointer_nr']=range(int(tmp[0])-1,int(tmp[1])-1)  
         tmp=re.findall(r'\d+',settings['segments']['marker columns'][i_seg])
-        BLM['segment'][0,i_seg]['opto_kol']=range(int(tmp[0])-1,int(tmp[1])-1)   
+        BLM['segment'][0,i_seg]['opto_kol']=range(int(tmp[0])-1,int(tmp[1]))   
         tmp=re.findall(r'\d+',settings['segments']['BLM from segments'][i_seg])
         tmp=list(map(int, tmp))
         tmp[:] = [x - 1 for x in tmp]
@@ -105,7 +107,7 @@ for i_seg in range(n_seg):
         tmp=re.findall(r'\d+',settings['segments']['pointer nr'][i_seg])
         BLM['segment'][0,i_seg]['pointer_nr']=range(int(tmp[0]),int(tmp[1]))  
         tmp=re.findall(r'\d+',settings['segments']['marker columns'][i_seg])
-        BLM['segment'][0,i_seg]['opto_kol']=range(int(tmp[0]),int(tmp[1]))   
+        BLM['segment'][0,i_seg]['opto_kol']=range(int(tmp[0]),int(tmp[1])+1)   
         tmp=re.findall(r'\d+',settings['segments']['BLM from segments'][i_seg])
         tmp=list(map(int, tmp))
         BLM['segment'][0,i_seg]['blmforaxis']=tmp
@@ -114,16 +116,29 @@ for i_seg in range(n_seg):
     BLM['segment'][0,i_seg]['circumference']=settings['segments']['circumference'][i_seg]
     BLM['segment'][0,i_seg]['gender']=settings['segments']['gender'][i_seg]
     BLM['segment'][0,i_seg]['axis_function']=settings['segments']['ACS function'][i_seg]    
-
-    #BLM['segment'][0,i_seg]['bracemarkers']= get these from x,y,z
+    col=BLM['segment'][0,i_seg]['opto_kol']
+    #Ioke        = np.where(np.isnan(np.sum(x_ref[:,col],axis=1)))[0][-1] + 1
+    Ioke=1
+    x_ref_seg                       = x_ref[:,col];# why do these become standing? 
+    y_ref_seg                       = y_ref[:,col];
+    z_ref_seg                       = z_ref[:,col];
+    bracemarker = kp.xyz2dat(x_ref_seg, y_ref_seg, z_ref_seg);
+    BLM['segment'][0,i_seg]['bracemarkers'] = bracemarker[Ioke,:]/1000
+    BLM['segment'][0,i_seg]['origin']       = (BLM['segment'][0,i_seg]['bracemarkers'][0:3]+BLM['segment'][0,i_seg]['bracemarkers'][3:6]+BLM['segment'][0,i_seg]['bracemarkers'][6:9])/3;    i_blm=0
+    
     i_blm=0
     for i_list in BLM['segment'][0,i_seg]['pointer_nr']:
        filen_no=settings['cluster_pointer_nr'][i_list]
        filename=settings['data_path']+settings['file_prefix']+str(filen_no).zfill(3)+settings['file_extension']
        x,y,z,fs = kp.readndf(filename)
        # do the pointer rotations etc
+       ref1     = pointer.reshape(1,pointer.size)  
+       ref2     = kp.xyz2dat(x[:,settings['pointer_kol']], y[:,settings['pointer_kol']], z[:,settings['pointer_kol']])
+       tmp,data  = kp.chgframe(ref1,ref2,np.zeros([1,3]))
        
-       
+       ref1      = kp.xyz2dat(x[:,col],y[:,col],z[:,col])
+       ref2      = bracemarker[Ioke,:]
+       tmp, data2 = kp.chgframe(ref1,ref2,data)
        # these should be stored in location i_blm*3:(i_blm+1*3)-1
        i_blm+=i_blm
     
