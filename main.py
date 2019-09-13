@@ -12,7 +12,7 @@ import kinpy as kp
 import matplotlib.pyplot as plt
 import numpy as np
 import pandas as pd
-import re
+#import re
 
 x,y,z,fs = kp.readndf("testdata/TN000077.ndf")
 fig = plt.figure()
@@ -25,10 +25,10 @@ ax.set(title= 'foot trajectory',
 
 #dat = kp.xyz2dat(x,y,z)
 
-#eye = np.eye(3,k=0)
-#eye = eye.reshape([1,9])
-#eye = np.r_[eye,eye,eye,eye,eye]
-#D = np.ones([5,9])*np.arange(9).T+1
+eye = np.eye(3,k=0)
+eye = eye.reshape([1,9])
+eye = np.r_[eye,eye,eye,eye,eye]
+D = np.ones([5,9])*np.arange(9).T+1
 
 ## Test case calc_axis_col
 #A = np.array([(11,2,23,4,52,16,27,81,91),([11,21,13,14,15,16,71,81,9]),(29,28,37,63,52,64,43,42,31),(9,84,7,64,5,54,36,2,1)])
@@ -40,11 +40,11 @@ ax.set(title= 'foot trajectory',
 #kp.prod_col(A,B)
 
 ## test case chgframe
-#eye2 = np.eye(3,k=0)
-#eye2 = eye2.reshape([1,9])
-#eye2 = np.r_[eye2,eye2,eye2,eye2,eye2]
-#eye2[0,1] = 2 
-#R,D2 = kp.chgframe(eye2,eye,D)
+eye2 = np.eye(3,k=0)
+eye2 = eye2.reshape([1,9])
+eye2 = np.r_[eye2,eye2,eye2,eye2,eye2]
+eye2[0,1] = 2 
+R,D2 = kp.chgframe_col(eye2,eye,D)
 
 ## test case for kp.prod_col
 #eye = np.eye(3,k=0)

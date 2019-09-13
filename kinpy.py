@@ -171,6 +171,18 @@ def calc_axis_col(dat):
     R = np.c_[v0_norm,v1_norm,v2_norm]
     return R
 
+def chgframe_col(ref1,ref2,*arg): # NK: Volgens mij is dit niet veel anders dan chgframe(_old); de least squares zal hierin gewoon de markers zijn . Of is dit gewoon computationeel sneller?
+    c1 = np.c_[np.mean(ref1[:,0::3],axis=1),np.mean(ref1[:,1::3],axis=1),np.mean(ref1[:,2::3],axis=1)]
+    c2 = np.c_[np.mean(ref2[:,0::3],axis=1),np.mean(ref2[:,1::3],axis=1),np.mean(ref2[:,2::3],axis=1)]
+    R1 = calc_axis_col(ref1)
+    R2 = calc_axis_col(ref2)
+    R = prod_col(R2,transpose_col(R1))
+    if len(arg)>0:
+        dat2est = np.tile(c2,[1,int(arg[0].shape[1]/3)])+prod_col(R,arg[0]-np.tile(c1,[1,int(arg[0].shape[1]/3)]));    
+    else:
+        dat2est = np.ones([1,3])*np.NaN
+    return R, dat2est
+
 def normcol(dat):
     dat = np.sum(dat**2,axis=0)**.5
     return dat
