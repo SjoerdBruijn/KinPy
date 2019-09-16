@@ -116,12 +116,12 @@ def chgframe(ref1,ref2,data):
     c2_tot= np.ones(data.shape)*np.nan
     dat2est = data*np.nan
     # Create temporary ref1 and ref2
-    ref1_temp = ref1[1,:].reshape(3,3);
+    ref1_temp = ref1[0,:].reshape(3,int(ref1.shape[1]/3));
     ref2_temp = ref1_temp*np.nan
     for i_t in range(ref2.shape[0]):
         # If ref1 has >1 sample, iterate along the matrix
         if ref1.shape[0]>1:
-            ref1_temp = ref1[i_t,:].reshape(3,3)
+            ref1_temp = ref1[i_t,:].reshape(3,int(ref1.shape[1]/3))
         # reshape to 3x3 matrix
         ref2_temp = ref2[i_t,:].reshape(3,int(ref2.shape[1]/3))
         # find nans in data        
