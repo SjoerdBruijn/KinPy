@@ -144,8 +144,7 @@ def chgframe(ref1,ref2,data):
         t=0
         # adjoint of a 3x3 matrix
         Gadj = adjoint(G)
-        R_temp    = np.matmul((Gadj.T+(mu[2]+mu[1]+t*mu[0])*G),linalg.inv(np.matmul(G.T,G)+(mu[2]*mu[1]+t*mu[0]*(mu[2]+mu[1])) * np.eye(3)))
-        R_temp = np.real(R_temp)
+        R_temp    = np.real(np.matmul((Gadj.T+(mu[2]+mu[1]+t*mu[0])*G),linalg.inv(np.matmul(G.T,G)+(mu[2]*mu[1]+t*mu[0]*(mu[2]+mu[1])) * np.eye(3))))
         R[i_t,:] = R_temp.T.reshape(1,9)    
         c1_tot[i_t,:] = np.tile(c1,[1,int(data.shape[1]/3)])
         c2_tot[i_t,:] = np.tile(c2,[1,int(data.shape[1]/3)])
