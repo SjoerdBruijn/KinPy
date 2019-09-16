@@ -12,16 +12,16 @@ import kinpy as kp
 import matplotlib.pyplot as plt
 import numpy as np
 import pandas as pd
-#import re
+import re
 
-x,y,z,fs = kp.readndf("testdata/TN000077.ndf")
-fig = plt.figure()
-ax = fig.add_subplot(111)
-ax.plot(x[:,17:19],z[:,17:19])
-ax.axis('equal')
-ax.set(title= 'foot trajectory',
-       ylabel = 'z pos [mm]',
-       xlabel = 'x pos [mm]')
+#x,y,z,fs = kp.readndf("testdata/TN000077.ndf")
+#fig = plt.figure()
+#ax = fig.add_subplot(111)
+#ax.plot(x[:,17:19],z[:,17:19])
+#ax.axis('equal')
+#ax.set(title= 'foot trajectory',
+#       ylabel = 'z pos [mm]',
+#       xlabel = 'x pos [mm]')
 
 #dat = kp.xyz2dat(x,y,z)
 
@@ -68,7 +68,7 @@ settings['data_path']        = 'Testdata/full data set/raw data/'; #location of 
 settings['file_prefix']      = 'TN000'; 
 settings['file_extension']   = '.ndf';
 settings['pointer_file']     = 'RB-06114.RIG';
-settings['pointer_kol']      = range(13,18);
+settings['pointer_kol']      = range(12,18);#12 t/m 17
 settings['reference_trial_nr']     = 89; 
 settings['cluster_pointer_nr']     = range(78,88); 
 settings['forceplate_pointers_nr'] = range(12,16);
@@ -135,7 +135,6 @@ for i_seg in range(n_seg):
        ref1     = pointer.reshape(1,pointer.size)  
        ref2     = kp.xyz2dat(x[:,settings['pointer_kol']], y[:,settings['pointer_kol']], z[:,settings['pointer_kol']])
        tmp,data  = kp.chgframe(ref1,ref2,np.zeros([1,3]))
-       
        ref1      = kp.xyz2dat(x[:,col],y[:,col],z[:,col])
        ref2      = bracemarker[Ioke,:]
        tmp, data2 = kp.chgframe(ref1,ref2,data)

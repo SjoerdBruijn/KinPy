@@ -23,6 +23,8 @@ import pandas as pd
 #import pdb #for debugging
 #pdb.set_trace()
 
+
+##### CORE  #########
 def fread(fid, nelements, dtype):
     """Equivalent to Matlab fread function"""
     if dtype is np.str:
@@ -58,20 +60,6 @@ def ImportPointerFile(pointerfilename):
     n_markers= pd.read_csv(pointerfilename,skiprows=3,nrows=1,delimiter=';',header=None)
     pointer=pd.read_csv(pointerfilename,skiprows=6, nrows=n_markers[0][0], usecols=[1,2,3], delim_whitespace=True) 
     return pointer 
-
-
-def calc_combined_com(traj):
-    n_seg           = traj[0,0]['segment'][0,:]['mass'].size
-    n_samples       = int(traj[0,0]['segment'][0,1]['com'].size/3.0)
-    com_combined    = np.zeros((n_samples,3))
-    mass_total      = 0
-    for i_seg in range(n_seg):
-        mass    = traj[0,0]['segment'][0,i_seg]['mass']
-        com     = traj[0,0]['segment'][0,i_seg]['com']
-        com_combined = com_combined+ mass*com
-        mass_total  = mass_total+mass
-    com_combined    = com_combined/mass_total
-    return com_combined
 
 def xyz2dat(s1,s2,s3):
 # omzetten van datastructuur:
@@ -111,13 +99,13 @@ def transpose_col(mat):
 
 def chgframe(ref1,ref2,data):
     # Create empty matrices
-    R = ref1*np.nan
-    c1_tot= np.ones(data.shape)*np.nan
-    c2_tot= np.ones(data.shape)*np.nan
+    R = np.ones([ref2.shape[0],9])*np.nan
+    c1_tot= np.ones([ref2.shape[0],int(data.size/data.shape[0])])*np.nan
+    c2_tot= c1_tot.copy()
     dat2est = data*np.nan
     # Create temporary ref1 and ref2
-    ref1_temp = ref1[0,:].reshape(3,int(ref1.shape[1]/3));
-    ref2_temp = ref1_temp*np.nan
+    ref1_temp = ref1[0,:].reshape(3,int(ref1.shape[1]/3))
+    ref2_temp = ref2[0,:].reshape(3,int(ref2.shape[1]/3))*np.nan
     for i_t in range(ref2.shape[0]):
         # If ref1 has >1 sample, iterate along the matrix
         if ref1.shape[0]>1:
@@ -133,21 +121,20 @@ def chgframe(ref1,ref2,data):
         # length of new vector
         nref = ref1_temp.shape[1]
         # mean position of marker pos        
-        c1 = np.mean(ref1_temp,axis=0)
-        c2 = np.mean(ref2_temp,axis=0)
+        c1 = np.mean(ref1_temp,axis=1)
+        c2 = np.mean(ref2_temp,axis=1)
         # Perform least squares function to data (misshien hier ref2 nog transpose)
-        G = np.matmul(ref2_temp-(c2*np.ones([3,nref])).T,ref1_temp-(c1*np.ones([1,3])))/nref
+        G = np.matmul(ref2_temp-np.tile(c2,[nref,1]).T,(ref1_temp-np.tile(c1,[nref,1]).T).T)/nref
         # Get eigenvalues of the         
         mu = np.sort(linalg.eigvals(np.matmul(G.T,G)))**(.5)
         # Get sign of Det
         t = np.sign(linalg.det(G))
-        t=0
         # adjoint of a 3x3 matrix
         Gadj = adjoint(G)
         R_temp    = np.real(np.matmul((Gadj.T+(mu[2]+mu[1]+t*mu[0])*G),linalg.inv(np.matmul(G.T,G)+(mu[2]*mu[1]+t*mu[0]*(mu[2]+mu[1])) * np.eye(3))))
-        R[i_t,:] = R_temp.T.reshape(1,9)    
-        c1_tot[i_t,:] = np.tile(c1,[1,int(data.shape[1]/3)])
-        c2_tot[i_t,:] = np.tile(c2,[1,int(data.shape[1]/3)])
+        R[i_t,:] = R_temp.T.reshape(1,9) 
+        c1_tot[i_t,:] = np.tile(c1,[1,int(data.size/data.shape[0]/3)])
+        c2_tot[i_t,:] = np.tile(c2,[1,int(data.size/data.shape[0]/3)])
     dat2est = c2_tot + prod_col(R,data-c1_tot)
     return R, dat2est
     
@@ -186,6 +173,22 @@ def normcol(dat):
     dat = np.sum(dat**2,axis=0)**.5
     return dat
 
+######## MAIN ########
+
+def calc_combined_com(traj):
+    n_seg           = traj[0,0]['segment'][0,:]['mass'].size
+    n_samples       = int(traj[0,0]['segment'][0,1]['com'].size/3.0)
+    com_combined    = np.zeros((n_samples,3))
+    mass_total      = 0
+    for i_seg in range(n_seg):
+        mass    = traj[0,0]['segment'][0,i_seg]['mass']
+        com     = traj[0,0]['segment'][0,i_seg]['com']
+        com_combined = com_combined+ mass*com
+        mass_total  = mass_total+mass
+    com_combined    = com_combined/mass_total
+    return com_combined
+
+####### Plot 3d functions ########
 def plot_3d(traj):
     class Player(FuncAnimation):
         def __init__(self, fig, func, frames=None, init_func=None, fargs=None,
