@@ -99,19 +99,22 @@ def transpose_col(mat):
 
 def chgframe(ref1,ref2,data):
     # Create empty matrices
+    import pdb
+    if ref2.size == ref2.shape[0]:# Dit is wel een lelijke oplossing...
+        ref2 = np.tile(ref2,[ref1.shape[0],1])
     R = np.ones([ref2.shape[0],9])*np.nan
     c1_tot= np.ones([ref2.shape[0],int(data.size/data.shape[0])])*np.nan
     c2_tot= c1_tot.copy()
     dat2est = data*np.nan
     # Create temporary ref1 and ref2
-    ref1_temp = ref1[0,:].reshape(3,int(ref1.shape[1]/3))
-    ref2_temp = ref2[0,:].reshape(3,int(ref2.shape[1]/3))*np.nan
+    ref1_temp = ref1[0,:].reshape([int(ref1.shape[1]/3),3]).T
+    ref2_temp = (ref2[0,:].reshape([int(ref2.size/ref2.shape[0]/3),3])*np.nan).T
     for i_t in range(ref2.shape[0]):
         # If ref1 has >1 sample, iterate along the matrix
         if ref1.shape[0]>1:
-            ref1_temp = ref1[i_t,:].reshape(3,int(ref1.shape[1]/3))
+            ref1_temp = ref1[i_t,:].reshape(int(ref1.shape[1]/3),3).T
         # reshape to 3x3 matrix
-        ref2_temp = ref2[i_t,:].reshape(3,int(ref2.shape[1]/3))
+        ref2_temp = ref2[i_t,:].reshape(int(ref2.shape[1]/3),3).T
         # find nans in data        
         innan = sum(np.isnan(np.add(ref1_temp,ref2_temp)))<1 #i not NaN
         # check whether there are 3 markers visible
@@ -121,6 +124,7 @@ def chgframe(ref1,ref2,data):
         # length of new vector
         nref = ref1_temp.shape[1]
         # mean position of marker pos        
+#        pdb.set_trace()
         c1 = np.mean(ref1_temp,axis=1)
         c2 = np.mean(ref2_temp,axis=1)
         # Perform least squares function to data (misshien hier ref2 nog transpose)
@@ -135,11 +139,13 @@ def chgframe(ref1,ref2,data):
         R[i_t,:] = R_temp.T.reshape(1,9) 
         c1_tot[i_t,:] = np.tile(c1,[1,int(data.size/data.shape[0]/3)])
         c2_tot[i_t,:] = np.tile(c2,[1,int(data.size/data.shape[0]/3)])
+#   NK: No need to loop this, I guess. 
     dat2est = c2_tot + prod_col(R,data-c1_tot)
     return R, dat2est
     
 def adjoint(mat):# cofactor matrix of a 3x3 matrix
     adj = np.array((np.cross(mat[:,1],mat[:,2].T),np.cross(mat[:,2],mat[:,0]),np.cross(mat[:,0],mat[:,1])))
+    # >>>>>for non-orthogonal cases, use code below<<<<
 #    if abs(linalg.det(mat))>0.001:
 #        cof = linalg.inv(mat).T*linalg.det(mat)
 #    else:
