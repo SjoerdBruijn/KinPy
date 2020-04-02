@@ -100,6 +100,7 @@ def transpose_col(mat):
 def chgframe(ref1,ref2,data):
     # Create empty matrices
     import pdb
+    pdb.set_trace()
     if ref2.size == ref2.shape[0]:# Dit is wel een lelijke oplossing...
         ref2 = np.tile(ref2,[ref1.shape[0],1])
     R = np.ones([ref2.shape[0],9])*np.nan
@@ -119,26 +120,25 @@ def chgframe(ref1,ref2,data):
         innan = sum(np.isnan(np.add(ref1_temp,ref2_temp)))<1 #i not NaN
         # check whether there are 3 markers visible
         if sum(innan)>3:
-            ref1_temp = ref1_temp[:,innan]
-            ref2_temp = ref2_temp[:,innan]
-        # length of new vector
-        nref = ref1_temp.shape[1]
-        # mean position of marker pos        
-#        pdb.set_trace()
-        c1 = np.mean(ref1_temp,axis=1)
-        c2 = np.mean(ref2_temp,axis=1)
-        # Perform least squares function to data (misshien hier ref2 nog transpose)
-        G = np.matmul(ref2_temp-np.tile(c2,[nref,1]).T,(ref1_temp-np.tile(c1,[nref,1]).T).T)/nref
-        # Get eigenvalues of the         
-        mu = np.sort(linalg.eigvals(np.matmul(G.T,G)))**(.5)
-        # Get sign of Det
-        t = np.sign(linalg.det(G))
-        # adjoint of a 3x3 matrix
-        Gadj = adjoint(G)
-        R_temp    = np.real(np.matmul((Gadj.T+(mu[2]+mu[1]+t*mu[0])*G),linalg.inv(np.matmul(G.T,G)+(mu[2]*mu[1]+t*mu[0]*(mu[2]+mu[1])) * np.eye(3))))
-        R[i_t,:] = R_temp.T.reshape(1,9) 
-        c1_tot[i_t,:] = np.tile(c1,[1,int(data.size/data.shape[0]/3)])
-        c2_tot[i_t,:] = np.tile(c2,[1,int(data.size/data.shape[0]/3)])
+            ref1_temp = ref1_temp[:,innan].copy()
+            ref2_temp = ref2_temp[:,innan].copy()
+            # length of new vector
+            nref = ref1_temp.shape[1]
+            # mean position of marker pos        
+            c1 = np.mean(ref1_temp,axis=1)
+            c2 = np.mean(ref2_temp,axis=1)
+            # Perform least squares function to data (misshien hier ref2 nog transpose)
+            G = np.matmul(ref2_temp-np.tile(c2,[nref,1]).T,(ref1_temp-np.tile(c1,[nref,1]).T).T)/nref
+            # Get eigenvalues of the         
+            mu = np.sort(linalg.eigvals(np.matmul(G.T,G)))**(.5)
+            # Get sign of Det
+            t = np.sign(linalg.det(G))
+            # adjoint of a 3x3 matrix
+            Gadj = adjoint(G)
+            R_temp    = np.real(np.matmul((Gadj.T+(mu[2]+mu[1]+t*mu[0])*G),linalg.inv(np.matmul(G.T,G)+(mu[2]*mu[1]+t*mu[0]*(mu[2]+mu[1])) * np.eye(3))))
+            R[i_t,:] = R_temp.T.reshape(1,9) 
+            c1_tot[i_t,:] = np.tile(c1,[1,int(data.size/data.shape[0]/3)])
+            c2_tot[i_t,:] = np.tile(c2,[1,int(data.size/data.shape[0]/3)])
 #   NK: No need to loop this, I guess. 
     dat2est = c2_tot + prod_col(R,data-c1_tot)
     return R, dat2est
@@ -357,7 +357,6 @@ def plot_3d(traj):
         jointdata=np.append(jointdata,tst, axis = 0)
         jointdata=np.append(jointdata,np.ones((1,3))*np.nan,axis=0)
     
-
      
     complot,    =ax.plot(comdata[:,0],comdata[:,1],comdata[:,2],linestyle="", marker="o")
     blmplot,    =ax.plot(blmdata[:,0],blmdata[:,1],blmdata[:,2])

@@ -53,7 +53,7 @@ R,D2 = kp.chgframe(eye2,eye,D)
 #C = kp.prod_col(eye,dat[0:5:1,0:9:1])
 #np.subtract(dat[0:5:1,0:9:1],C)
 
-mat = scipy.io.loadmat('testdata/TN000077.mat')
+mat = scipy.io.loadmat('testdata/TN000076.mat')
 traj =mat['traj']
 
 com = kp.calc_combined_com(traj)
